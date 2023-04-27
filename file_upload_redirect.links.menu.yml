@@ -1,0 +1,5 @@
+file_upload_redirect.upload_form:
+  title: 'Upload File'
+  description: 'Upload a file'
+  route_name: file_upload_redirect.upload_form
+  parent: system.admin_content

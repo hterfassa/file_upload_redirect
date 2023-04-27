@@ -1,0 +1,5 @@
+name: File Upload Redirect
+type: module
+description: Helps users upload files more efficiently and redirects them to the file they just uploaded.
+core_version_requirement: ^9 || ^10
+package: Custom

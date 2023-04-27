@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * Implements hook_form_alter().
+ */
+function file_upload_redirect_form_alter(&$form, &$form_state, $form_id) {
+  // Check if the form is a file upload form.
+  if (isset($form['#attributes']['enctype']) && $form['#attributes']['enctype'] == 'multipart/form-data') {
+    // Add a submit handler to the form.
+    $form['actions']['submit']['#submit'][] = 'file_upload_redirect_submit';
+  }
+}
+
+/**
+ * Custom submit handler for file upload forms.
+ */
+function file_upload_redirect_submit($form, &$form_state) {
+  // Get the file object from the form state.
+  $file = $form_state->getValue('files');
+
+  // Redirect the user to the file they just uploaded.
+  $url = Url::fromRoute('entity.file.canonical', ['file' => $file[0]->id()]);
+  $form_state->setRedirectUrl($url);
+}
