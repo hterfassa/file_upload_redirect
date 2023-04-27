@@ -2,6 +2,6 @@ file_upload_redirect.upload_form:
   path: '/upload'
   defaults:
     _form: '\Drupal\file_upload_redirect\Form\FileUploadForm'
-    _title: 'Upload File'
+    _title: 'Resume Upload'
   requirements:
     _permission: 'access content'
