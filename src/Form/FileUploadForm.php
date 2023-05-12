@@ -6,6 +6,7 @@ use Drupal\Core\Form\FormBase; //Imports the FormBase class from the Drupal\Core
 use Drupal\Core\Form\FormStateInterface; //Imports the FormStateInterface class from the Drupal\Core\Form namespace.
 use Drupal\Core\Url; //Imports the Url class from the Drupal\Core namespace.
 use Drupal\file\Entity\File; //Imports the File class from the Drupal\file\Entity namespace.
+use Drupal\node\Entity\Node;
 
 class FileUploadForm extends FormBase { //Declares the FileUploadForm class and extends the FormBase class.
 
@@ -94,22 +95,37 @@ class FileUploadForm extends FormBase { //Declares the FileUploadForm class and 
 
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $form_file = $form_state->getValue('file', 0);
-  
+    
     // If a file was uploaded, create a new file entity and save it.
     if (isset($form_file[0]) && !empty($form_file[0])) {
       $file = File::load($form_file[0]);
       $file->setPermanent();
       $file->save();
     }
-  
+    
     // Get the values of the first name, last name, and email fields.
     $first_name = trim($form_state->getValue('first_name'));
     $last_name = trim($form_state->getValue('last_name'));
     $email = trim($form_state->getValue('email'));
   
+    // Create a new node entity of the "resume" content type.
+    $node = Node::create([
+      'type' => 'resume',
+      'title' => $first_name . ' ' . $last_name,
+      'field_resume_email' => $email,
+      'field_resume_file' => [
+        'target_id' => $file->id(),
+        'alt' => $file->getFilename(),
+        'title' => $file->getFilename(),
+      ],
+    ]);
+  
+    // Save the node entity.
+    $node->save();
+    
     // Set a message for the user.
     $this->messenger()->addMessage($this->t('Your file was uploaded successfully, %name!', ['%name' => $first_name]));
-  
+    
     // Send an email notification to the site administrator.
     $mailManager = \Drupal::service('plugin.manager.mail');
     $module = 'file_upload_redirect';
@@ -123,7 +139,7 @@ class FileUploadForm extends FormBase { //Declares the FileUploadForm class and 
     $langcode = \Drupal::currentUser()->getPreferredLangcode();
     $send = true;
     $result = $mailManager->mail($module, $key, $to, $langcode, $params, null, $send);
-  
+    
     return;
   }  
 }
